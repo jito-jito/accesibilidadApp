@@ -22,30 +22,32 @@ import androidx.compose.ui.unit.dp
 
 @Composable
 fun AccessibleTextField(
+    value: String,                    // Recibe el texto desde afuera
+    onValueChange: (String) -> Unit,   // Notifica cuando el usuario escribe
     label: String,
     icon: ImageVector,
     description: String,
-    isPassword: Boolean = false
+    isPassword: Boolean = false,
+    modifier: Modifier = Modifier      // Siempre permite pasar un Modifier de afuera
 ) {
-    var text by remember { mutableStateOf("") }
-
     OutlinedTextField(
-        value = text,
-        onValueChange = { text = it },
+        value = value,
+        onValueChange = onValueChange, // Delegamos el cambio
         label = { Text(label, style = MaterialTheme.typography.bodyLarge) },
         leadingIcon = {
             Icon(
                 imageVector = icon,
-                contentDescription = null, // Nulo porque es decorativo; el label ya explica el campo
+                contentDescription = description, // A11y: Mejor usar la descripción aquí
                 modifier = Modifier.size(28.dp)
             )
         },
         visualTransformation = if (isPassword) PasswordVisualTransformation() else VisualTransformation.None,
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .semantics {
-                // A11y: Si quisiéramos agregar información extra para TalkBack
-                contentDescription = "Campo de texto para ingresar $label"
+                // TalkBack leerá el label automáticamente,
+                // pero esto añade contexto extra si es necesario.
+                contentDescription = "Ingresa tu $label"
             },
         textStyle = MaterialTheme.typography.titleMedium,
         singleLine = true

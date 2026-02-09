@@ -35,7 +35,7 @@ fun AppNavigation() {
 
         composable("login") {
             LoginScreen(
-                onLoginClick = {
+                onLoginSuccess = {
                     navController.navigate("home") {
                         popUpTo("login") { inclusive = true }
                     }
@@ -50,6 +50,11 @@ fun AppNavigation() {
             RegisterScreen(
                 onBackClick = {
                     navController.navigate("login")
+                },
+                onRegisterSuccess = {
+                    navController.navigate("home") {
+                        popUpTo("login") { inclusive = true }
+                    }
                 }
             )
         }

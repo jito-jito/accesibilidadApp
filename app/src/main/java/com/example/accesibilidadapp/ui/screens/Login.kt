@@ -25,21 +25,36 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.accesibilidadapp.R
 import com.example.accesibilidadapp.ui.components.A11yTopBar
 import com.example.accesibilidadapp.ui.components.AccessibleTextField
+import com.example.accesibilidadapp.ui.viewmodels.LoginViewModel
 
 
 @Composable
 fun LoginScreen(
-    onLoginClick: () -> Unit,
-    onRegisterNavigate: () -> Unit
+    onLoginSuccess: () -> Unit,
+    onRegisterNavigate: () -> Unit,
+    viewModel: LoginViewModel = viewModel()
 ) {
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+
+    //Efecto para navegar cuando el login sea exitoso
+    LaunchedEffect(uiState.isSuccess) {
+        if (uiState.isSuccess) {
+            onLoginSuccess()
+        }
+    }
+
     Scaffold(
         modifier = Modifier.fillMaxSize(),
 
@@ -87,6 +102,8 @@ fun LoginScreen(
             Spacer(modifier = Modifier.height(16.dp))
 
             AccessibleTextField(
+                value = uiState.email,
+                onValueChange = { viewModel.onEmailChanged(it) },
                 label = "Correo Electrónico",
                 icon = Icons.Default.Email,
                 description = "Icono de sobre de carta"
@@ -95,6 +112,8 @@ fun LoginScreen(
             Spacer(modifier = Modifier.height(16.dp))
 
             AccessibleTextField(
+                value = uiState.password,
+                onValueChange = { viewModel.onPasswordChanged(it) },
                 label = "Contraseña",
                 icon = Icons.Default.Lock,
                 description = "Icono de candado",
@@ -105,15 +124,25 @@ fun LoginScreen(
 
 
             Button(
-                onClick = onLoginClick,
+                onClick = { viewModel.iniciarSesion() },
+                enabled = viewModel.isFormValid && !uiState.isLoading,
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(56.dp),
                 shape = RoundedCornerShape(12.dp)
             ) {
                 Text(
-                    text = "Ingresar",
+                    text = if (uiState.isLoading) "Cargando..." else "Ingresar",
                     style = MaterialTheme.typography.titleLarge
+                )
+            }
+
+            if (uiState.error != null) {
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    text = uiState.error!!,
+                    color = MaterialTheme.colorScheme.error,
+                    style = MaterialTheme.typography.bodyMedium
                 )
             }
 
