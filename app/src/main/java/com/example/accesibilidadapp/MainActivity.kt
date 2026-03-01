@@ -11,6 +11,7 @@ import com.example.accesibilidadapp.ui.screens.RegisterScreen
 
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import com.example.accesibilidadapp.ui.screens.LocationDetailScreen
 import com.example.accesibilidadapp.ui.screens.VoiceTranscriptionScreen
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -65,6 +66,9 @@ fun AppNavigation() {
             HomeScreen(
                 onNavigateToLiveTranscribe = {
                     navController.navigate("voice_transcription")
+                },
+                onLocationDetailsClick = {
+                    navController.navigate("location_detail")
                 }
             )
         }
@@ -78,6 +82,12 @@ fun AppNavigation() {
                         ?.set("transcribed_text", result)
                     navController.popBackStack()
                 }
+            )
+        }
+
+        composable("location_detail") {
+            LocationDetailScreen(
+                onBack = { navController.popBackStack() }
             )
         }
     }
