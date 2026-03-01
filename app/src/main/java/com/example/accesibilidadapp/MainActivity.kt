@@ -12,6 +12,7 @@ import com.example.accesibilidadapp.ui.screens.RegisterScreen
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.example.accesibilidadapp.ui.screens.LocationDetailScreen
+import com.example.accesibilidadapp.ui.screens.TextToVoiceScreen
 import com.example.accesibilidadapp.ui.screens.VoiceTranscriptionScreen
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -69,6 +70,9 @@ fun AppNavigation() {
                 },
                 onLocationDetailsClick = {
                     navController.navigate("location_detail")
+                },
+                onNavigateToTTS = {
+                    navController.navigate("text_to_voice_screen")
                 }
             )
         }
@@ -87,6 +91,12 @@ fun AppNavigation() {
 
         composable("location_detail") {
             LocationDetailScreen(
+                onBack = { navController.popBackStack() }
+            )
+        }
+
+        composable("text_to_voice_screen") {
+            TextToVoiceScreen(
                 onBack = { navController.popBackStack() }
             )
         }

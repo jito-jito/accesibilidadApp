@@ -65,6 +65,7 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.7.3")
     implementation("com.google.dagger:hilt-android:2.48")
     implementation(libs.androidx.lifecycle.viewmodel.ktx)
+    implementation(libs.androidx.compose.runtime)
     ksp("com.google.dagger:hilt-compiler:2.48")
 
     implementation("com.google.accompanist:accompanist-permissions:0.34.0")
