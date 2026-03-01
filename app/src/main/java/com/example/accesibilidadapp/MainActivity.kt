@@ -11,30 +11,40 @@ import com.example.accesibilidadapp.ui.screens.RegisterScreen
 
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import com.example.accesibilidadapp.domain.repository.AuthRepository
 import com.example.accesibilidadapp.ui.screens.LocationDetailScreen
+import com.example.accesibilidadapp.ui.screens.ProfileScreen
 import com.example.accesibilidadapp.ui.screens.TextToVoiceScreen
 import com.example.accesibilidadapp.ui.screens.VoiceTranscriptionScreen
 import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
+    @Inject
+    lateinit var authRepository: AuthRepository
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        // Verificamos si hay un usuario con sesión activa en Firebase
+        val startRoute = if (authRepository.isUserLoggedIn()) "home" else "login"
+
         setContent {
-            AppNavigation()
+            AppNavigation(startRoute)
         }
     }
 }
 
 @Composable
-fun AppNavigation() {
+fun AppNavigation(startRoute: String) {
     // 1. Crear el controlador de navegación
     val navController = rememberNavController()
 
     // 2. Definir el NavHost
     NavHost(
         navController = navController,
-        startDestination = "login" // La pantalla inicial
+        startDestination = startRoute // La pantalla inicial
     ) {
 
         composable("login") {
@@ -73,6 +83,9 @@ fun AppNavigation() {
                 },
                 onNavigateToTTS = {
                     navController.navigate("text_to_voice_screen")
+                },
+                onSettingsClick = {
+                    navController.navigate("profile")
                 }
             )
         }
@@ -98,6 +111,17 @@ fun AppNavigation() {
         composable("text_to_voice_screen") {
             TextToVoiceScreen(
                 onBack = { navController.popBackStack() }
+            )
+        }
+
+        composable("profile") {
+            ProfileScreen(
+                onBack = { navController.popBackStack() },
+                onNavigateToLogin = {
+                    navController.navigate("login") {
+                        popUpTo("home") { inclusive = true }
+                    }
+                }
             )
         }
     }

@@ -45,6 +45,18 @@ class AuthRepositoryImpl @Inject constructor(
         }
     }
 
+    override fun signOut() {
+        auth.signOut()
+    }
+
+    override fun getCurrentUserId(): String? = auth.currentUser?.uid
+
+    override fun getCurrentUserEmail(): String? = auth.currentUser?.email
+
+    override fun isUserLoggedIn(): Boolean {
+        return auth.currentUser != null
+    }
+
     private fun mapFirebaseError(e: Exception): String {
         return when (e) {
             is FirebaseAuthUserCollisionException -> "Este correo electrónico ya está registrado."
