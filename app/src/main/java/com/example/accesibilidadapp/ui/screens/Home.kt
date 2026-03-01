@@ -42,6 +42,7 @@ fun HomeScreen(
     onNavigateToObjectRec: () -> Unit = {},
     onNavigateToLiveTranscribe: () -> Unit = {},
     onEmergencyClick: () -> Unit = {},
+    onLocationDetailsClick: () -> Unit = {},
     onSettingsClick: () -> Unit = {}
 ) {
     Scaffold(
@@ -135,7 +136,7 @@ fun HomeScreen(
 
             // Botón de contexto rápido
             OutlinedButton(
-                onClick = { /* Lógica para decir ubicación */ },
+                onClick = onLocationDetailsClick,
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(64.dp),
