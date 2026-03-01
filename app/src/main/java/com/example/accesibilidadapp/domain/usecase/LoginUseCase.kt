@@ -1,27 +1,26 @@
 package com.example.accesibilidadapp.domain.usecase
 
-import com.example.accesibilidadapp.data.repository.AuthRepository
-import com.example.accesibilidadapp.domain.model.User
-import com.example.accesibilidadapp.utils.safeRun
+import com.example.accesibilidadapp.domain.repository.AuthRepository
+import javax.inject.Inject
 
-class LoginUseCase {
-    // Concepto 1: Podríamos usar una función de orden superior si quisiéramos
-    // aplicar una regla extra de logeo (ej. verificar si la cuenta está bloqueada).
-    operator fun invoke(email: String, pass: String): Result<User> {
-        return safeRun { // Concepto 3 (Inline) y Concepto 9 (Try/Catch)
-
-            // Concepto 2: Usamos filter (u otra función de colección)
-            // dentro del repositorio para encontrar al usuario.
-            val usuarioEncontrado = AuthRepository.obtenerUsuarios().find {
-                it.email == email && it.password == pass
-            }
-
-            // Concepto 8: Lanzamos una excepción si las credenciales no coinciden.
-            if (usuarioEncontrado == null) {
-                throw Exception("Correo o contraseña incorrectos")
-            }
-
-            usuarioEncontrado
+class LoginUseCase @Inject constructor(
+    private val repository: AuthRepository
+) {
+    /**
+     * Realiza el inicio de sesión.
+     * Ahora es una función 'suspend' porque la red es asíncrona.
+     */
+    suspend operator fun invoke(email: String, pass: String): Result<Unit> {
+        // Validaciones previas de dominio antes de ir al repositorio
+        if (email.isBlank() || pass.isBlank()) {
+            return Result.failure(Exception("Los campos no pueden estar vacíos"))
         }
+
+        if (!email.contains("@")) {
+            return Result.failure(Exception("Formato de correo inválido"))
+        }
+
+        // Llamamos al repositorio que ahora gestiona Firebase
+        return repository.signIn(email, pass)
     }
 }

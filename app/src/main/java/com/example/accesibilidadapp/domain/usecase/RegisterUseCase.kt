@@ -1,24 +1,31 @@
 package com.example.accesibilidadapp.domain.usecase
 
-import com.example.accesibilidadapp.data.repository.AuthRepository
+import com.example.accesibilidadapp.domain.repository.AuthRepository
 import com.example.accesibilidadapp.domain.model.User
 import com.example.accesibilidadapp.domain.model.esValido
+import javax.inject.Inject
 
-class RegisterUseCase {
+class RegisterUseCase @Inject constructor(
+    private val repository: AuthRepository
+) {
+    /**
+     * Ejecuta la lógica de negocio para registrar un nuevo usuario.
+     * @param user Objeto con los datos del formulario.
+     */
+    suspend operator fun invoke(user: User): Result<Unit> {
 
-    operator fun invoke(user: User): Result<Unit> {
-
-        // Regla de dominio 1: Validación básica
+        // 1. Regla de dominio: Validación local (Sin red)
         if (!user.esValido) {
             return Result.failure(Exception("Los datos no cumplen con el formato requerido"))
         }
 
-        // Regla de dominio 2: Integridad de datos (Usuario duplicado)
-        if (AuthRepository.existeUsuario(user.email)) {
-            return Result.failure(Exception("Este correo ya está registrado"))
-        }
-
-        AuthRepository.guardarUsuario(user.nombre, user.email, user.password)
-        return Result.success(Unit)
+        // 2. Ejecución del registro en Firebase
+        // No necesitamos verificar manualmente 'existeUsuario' porque
+        // Firebase Auth lo hace automáticamente al intentar crear la cuenta.
+        return repository.signUp(
+            email = user.email,
+            pass = user.password,
+            name = user.nombre
+        )
     }
 }

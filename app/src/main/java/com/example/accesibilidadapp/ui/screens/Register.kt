@@ -1,22 +1,14 @@
 package com.example.accesibilidadapp.ui.screens
 
 import android.annotation.SuppressLint
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Person
-import androidx.compose.material3.Button
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -26,8 +18,8 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel // Importante: usar hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.accesibilidadapp.ui.components.A11yTopBar
 import com.example.accesibilidadapp.ui.components.AccessibleTextField
 import com.example.accesibilidadapp.ui.viewmodels.RegisterViewModel
@@ -37,16 +29,15 @@ import com.example.accesibilidadapp.ui.viewmodels.RegisterViewModel
 fun RegisterScreen(
     onRegisterSuccess: () -> Unit,
     onBackClick: () -> Unit,
-    viewModel: RegisterViewModel = viewModel() // Accedemos al "cerebro"
+    // CAMBIO: Usamos hiltViewModel() para que Hilt inyecte el repositorio automáticamente
+    viewModel: RegisterViewModel = hiltViewModel()
 ) {
-    // Observamos el estado del ViewModel
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val focusManager = LocalFocusManager.current
 
-    // Escuchamos cuando isSuccess cambie a true
     LaunchedEffect(uiState.isSuccess) {
         if (uiState.isSuccess) {
-            onRegisterSuccess() // Ejecutamos la navegación
+            onRegisterSuccess()
         }
     }
 
@@ -73,9 +64,8 @@ fun RegisterScreen(
                 style = MaterialTheme.typography.headlineMedium,
                 modifier = Modifier
                     .padding(bottom = 24.dp)
-                    .semantics { heading() } // TalkBack anunciará esto como "Encabezado"
+                    .semantics { heading() }
             )
-
 
             AccessibleTextField(
                 value = uiState.nombre,
@@ -108,25 +98,40 @@ fun RegisterScreen(
 
             Spacer(modifier = Modifier.height(32.dp))
 
+            // Mejoramos el feedback visual en el botón
             Button(
                 onClick = {
-                    focusManager.clearFocus() // Limpia el teclado/foco antes de la acción
-                    android.util.Log.d("ACCESIBILIDAD", "¡Clic detectado en la UI!")
+                    focusManager.clearFocus()
                     viewModel.registrarUsuario()
                 },
+                // Se deshabilita si el formulario es inválido O si está cargando
                 enabled = viewModel.isFormValid && !uiState.isLoading,
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(56.dp)
-                    .padding(top = 12.dp)
             ) {
-                Text("Registrarse")
+                if (uiState.isLoading) {
+                    // Muestra un indicador de carga pequeño dentro del botón
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(24.dp),
+                        color = MaterialTheme.colorScheme.onPrimary,
+                        strokeWidth = 2.dp
+                    )
+                } else {
+                    Text("Registrarse")
+                }
             }
 
+            // Mostramos el error de forma más visible si existe
             if (uiState.error != null) {
-                Text(text = uiState.error!!, color = MaterialTheme.colorScheme.error)
+                Spacer(modifier = Modifier.height(16.dp))
+                Text(
+                    text = uiState.error!!,
+                    color = MaterialTheme.colorScheme.error,
+                    style = MaterialTheme.typography.bodyMedium,
+                    modifier = Modifier.padding(horizontal = 8.dp)
+                )
             }
-
         }
     }
 }

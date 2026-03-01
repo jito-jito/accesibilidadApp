@@ -32,8 +32,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.accesibilidadapp.R
 import com.example.accesibilidadapp.ui.components.A11yTopBar
 import com.example.accesibilidadapp.ui.components.AccessibleTextField
@@ -44,7 +44,7 @@ import com.example.accesibilidadapp.ui.viewmodels.LoginViewModel
 fun LoginScreen(
     onLoginSuccess: () -> Unit,
     onRegisterNavigate: () -> Unit,
-    viewModel: LoginViewModel = viewModel()
+    viewModel: LoginViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
